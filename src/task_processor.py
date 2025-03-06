@@ -38,7 +38,7 @@ def process_task(task, session):
         llmClient = LLMClient(LLM_SERVER_URL)
 
         skills_response = llmClient.send_request(text)
-    
+
         index_skills(task.filename, skills_response)
         
         task.status = 'COMPLETED'

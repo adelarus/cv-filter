@@ -1,3 +1,4 @@
+import json
 import os
 import chromadb
 import uuid
@@ -48,13 +49,16 @@ def process_pdf(filename, text):
     print(f"No of items {collection.count()}")
     print(f"{filename} was indexed")
 
+
 def index_skills(filename, skills_list):
+    print(f"Indexing skills for {filename}")
+
     for skill in skills_list:
         doc_id = str(uuid.uuid4())
         collection.add(
             ids=[doc_id],
-            documents=[skill],
-            metadatas=[{"filename": filename, "skill_name": skill}]
+            documents=[json.dumps(skill)],
+            metadatas=[{"filename": filename, "skill_name": json.dumps(skill)}]
         )
-        
+          
     print(f"Items index: {len(skills_list)}")
