@@ -1,8 +1,11 @@
 flask
 requests
 chromadb
-#chatwrap @ git+https://github.com/stefanbertici/chatwrap.git'
 celery
 SQLAlchemy
 pdfminer.six
 alembic
+python-dotenv
+flask-cors
+
+#pip install -e ../chatwrap install local library

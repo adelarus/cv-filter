@@ -1,20 +1,24 @@
 import concurrent
-import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
-from workers.pdf_converter import process_pdf
-from workers.pdf_converter import index_skills
+
 from multiprocessing import Lock
 from pdfminer.high_level import extract_text
 from chatwrap.client import LLMClient
 import json
+from dotenv import load_dotenv
+from src.index_utils import index_skills
+import src.system_prompts as sp
+
 
 import os
 
 CVS_PATH = 'CVs'
 LLM_SERVER_URL = 'https://api.openai.com/v1/chat/completions'
+
+load_dotenv()
 
 Base = declarative_base()
 
@@ -35,9 +39,9 @@ def process_task(task, session):
         print(f"Processing task {task.id}")
         text = extract_text(os.path.join(CVS_PATH, task.filename))
 
-        llmClient = LLMClient(LLM_SERVER_URL)
+        llmClient = LLMClient(LLM_SERVER_URL, os.getenv('OPENAI_API_KEY'))
 
-        skills_response = llmClient.send_request(text)
+        skills_response = llmClient.send_request(text, system_prompt = sp.SKILLS_EXTRACTOR)
 
         index_skills(task.filename, skills_response)
         
@@ -61,8 +65,7 @@ def processTasks():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    #tasks = session.query(Task).filter_by(status='PENDING').all()
-    tasks = [session.query(Task).first()]
+    tasks = session.query(Task).filter_by(status='PENDING').all()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(process_task, task, session) for task in tasks]
