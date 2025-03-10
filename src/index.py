@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 import os
-from workers.pdf_converter import convert_pdf   
+from index_utils import convert_pdf   
 
 def cli(params): 
     file_path = params.path
