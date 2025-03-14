@@ -1,11 +1,17 @@
 import os
 import uuid
+
 from flask import Flask, jsonify, request
+from flask.helpers import send_from_directory
+
 from chatwrap.client import LLMClient
 from src.index_utils import convert_pdf
+
 import chromadb
+
 from flask_cors import CORS
-from src.scoring_utils import calculate_score
+from src.scoring_utils import Matches
+
 import src.system_prompts as sp
 
 app = Flask(__name__)
@@ -44,29 +50,36 @@ def find_candidates():
 
     print(skills_response)
 
-    threshold = request.get_json().get('threshold', 0.8)
+    threshold = request.get_json().get('threshold', 0.5)
 
     print(f"No of items {collection.count()}")
 
-    results = collection.query(
-        query_texts=[query_text],
-        n_results=5
-    )
+    matches_list = Matches()
 
-    metadatas = results.get('metadatas', [{}])[0] 
-    filenames = [metadata.get('filename') for metadata in metadatas]
-    skills = [metadata.get('skill_name') for metadata in metadatas]
+    for skill in skills_response:
+        query_text = f"{skill['skill']} {skill['years']} years"
+        
+        results = collection.query(
+            query_texts=[query_text],
+            n_results=15
+        )
 
-    distances = results.get('distances', [{}])[0]
-    
-    similarity = list(zip(filenames, distances, skills))
+        metadatas = results.get('metadatas', [{}])[0] 
+        distances = results.get('distances', [{}])[0]
+        filenames = [metadata.get('filename') for metadata in metadatas]
+        skills = [metadata.get('skill_name') for metadata in metadatas]
 
-    sorted_similarity = sorted(similarity, key=lambda x: x[1])
-    filtered_similarity = [item for item in sorted_similarity if item[1] < threshold]
+        results = list(zip(filenames, distances, skills, metadatas))
 
-    final_scores = calculate_score(filtered_similarity)
+        matches_list.add_matches(skill, results)
+
+    final_scores = matches_list.calculate_scores()
 
     return jsonify(final_scores)
+
+@app.route('/cv/<cv_name>')
+def get_cv(cv_name):
+    return send_from_directory('../CVs', cv_name)
 
 if __name__ == '__main__':
     app.run()
