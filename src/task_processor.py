@@ -1,4 +1,5 @@
 import concurrent
+import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -7,11 +8,9 @@ from sqlalchemy import Column, Integer, String
 from multiprocessing import Lock
 from pdfminer.high_level import extract_text
 from chatwrap.client import LLMClient
-import json
 from dotenv import load_dotenv
 from src.index_utils import index_skills
 import src.system_prompts as sp
-
 
 import os
 
@@ -31,7 +30,7 @@ class Task(Base):
     payload = Column(String)
 
 def process_task(task, session):
-    try:
+    try:        
         task.status = 'IN_PROGRESS'
     
         lock = Lock()   
@@ -76,9 +75,6 @@ def processTasks():
 
 if __name__== "__main__":
 
-    # while True:
-    #     processTasks()
-    #     time.sleep(5)
-
-
-    processTasks()
+    while True:
+        processTasks()
+        time.sleep(5)

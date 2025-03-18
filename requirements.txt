@@ -7,5 +7,6 @@ pdfminer.six
 alembic
 python-dotenv
 flask-cors
+diskcache
 
-#pip install -e ../chatwrap install local library
+#pip install -e E:\Training\Python\Projects\chatwrap install local library

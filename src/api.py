@@ -1,5 +1,4 @@
 import os
-import uuid
 
 from flask import Flask, jsonify, request
 from flask.helpers import send_from_directory
@@ -15,6 +14,8 @@ from src.scoring_utils import Matches
 import src.system_prompts as sp
 
 app = Flask(__name__)
+app.json.sort_keys = False
+
 CORS(app)
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(
@@ -48,12 +49,6 @@ def find_candidates():
 
     skills_response = llmClient.send_request(query_text, system_prompt = sp.JOB_DESCRIPTION_EXTRACTOR)
 
-    print(skills_response)
-
-    threshold = request.get_json().get('threshold', 0.5)
-
-    print(f"No of items {collection.count()}")
-
     matches_list = Matches()
 
     for skill in skills_response:
@@ -74,6 +69,10 @@ def find_candidates():
         matches_list.add_matches(skill, results)
 
     final_scores = matches_list.calculate_scores()
+
+    #remove duplicate skills
+    for cv in final_scores:
+        final_scores[cv]['skills'] = list(set(final_scores[cv]['skills']))
 
     return jsonify(final_scores)
 

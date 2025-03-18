@@ -1,19 +1,5 @@
 import numpy as np
 import json
-'''
-[
-    [
-        "CV_Rus_Adela.pdf",
-        0.5742932806670502,
-        "{\"skill\": \"Java\", \"years\": 12}"
-    ],
-    [
-        "CV_Rus_Adela.pdf",
-        0.758156409421658,
-        "{\"skill\": \"JPA\", \"years\": 12}"
-    ]
-    ]
-'''
 
 class Matches:
 
@@ -29,7 +15,6 @@ class Matches:
         for match_set in self.matches_list:
 
             expected_years = int(match_set['query']['years'])
-            query_skill = match_set['query']['skill']
             available_points = 1
 
             for candidate in match_set['candidates']:
