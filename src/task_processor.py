@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, String
 
 from multiprocessing import Lock
 from pdfminer.high_level import extract_text
-from chatwrap.client import LLMClient
+from src.llm_client import LLMClient
 from dotenv import load_dotenv
 from src.index_utils import index_skills
 import src.system_prompts as sp

@@ -23,6 +23,7 @@ collection = chroma_client.get_or_create_collection(
     metadata={
         "hnsw:space": "cosine"
     })
+
 LLM_SERVER_URL = 'https://api.openai.com/v1/chat/completions'
 
 CVS_PATH = 'CVs'
