@@ -8,5 +8,3 @@ alembic
 python-dotenv
 flask-cors
 diskcache
-
-#pip install -e E:\Training\Python\Projects\chatwrap install local library
